@@ -12,6 +12,22 @@ pub type suseconds_t = i64;
 pub type __u64 = ::c_ulong;
 
 s! {
+    pub struct pt_regs {
+        pub gpr: [::c_ulong; 32],
+        pub nip: ::c_ulong,
+        pub msr: ::c_ulong,
+        pub orig_gpr3: ::c_ulong,
+        pub ctr: ::c_ulong,
+        pub link: ::c_ulong,
+        pub xer: ::c_ulong,
+        pub ccr: ::c_ulong,
+        pub softe: ::c_ulong,
+        pub trap: ::c_ulong,
+        pub dar: ::c_ulong,
+        pub dsisr: ::c_ulong,
+        pub result: ::c_ulong,
+    }
+
     pub struct sigaction {
         pub sa_sigaction: ::sighandler_t,
         pub sa_mask: ::sigset_t,
@@ -189,6 +205,47 @@ s! {
         pub ss_sp: *mut ::c_void,
         pub ss_flags: ::c_int,
         pub ss_size: ::size_t
+    }
+
+    #[repr(C)]
+    pub struct vscr_t {
+        #[cfg(target_endian = "big")]
+        __pad: [::c_uint; 3],
+        #[cfg(target_endian = "big")]
+        pub vscr_word: ::c_uint,
+
+        #[cfg(target_endian = "little")]
+        pub vscr_word: ::c_uint,
+        #[cfg(target_endian = "little")]
+        __pad: [::c_uint; 3],
+    }
+
+    pub struct vrregset_t {
+        pub vrregs: [[::c_uint; 4]; 32],
+        pub vscr: ::vscr_t,
+        pub vrsave: ::c_uint,
+        _pad: [::c_int; 3],
+    }
+
+    pub struct mcontext_t {
+        __glibc_reserved: [::c_ulong; 4],
+        pub signal: ::c_int,
+        __pad0: ::c_int,
+        pub handler: ::c_ulong,
+        pub oldmask: ::c_ulong,
+        pub regs: *mut pt_regs,
+        pub gp_regs: [::c_ulong; 48],
+        pub fp_regs: [::c_double; 33],
+        pub v_regs: *mut vrregset_t,
+        pub vmx_reserve: [::c_long; 69],
+    }
+
+    pub struct ucontext_t {
+        pub uc_flags: ::c_ulong,
+        pub uc_link: *mut ucontext_t,
+        pub uc_stack: ::stack_t,
+        pub uc_mcontext: mcontext_t,
+        pub uc_sigmask: ::sigset_t,
     }
 
     pub struct ip_mreqn {
