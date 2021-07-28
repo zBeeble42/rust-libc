@@ -1755,7 +1755,7 @@ cfg_if! {
         pub use self::powerpc::*;
     } else if #[cfg(target_arch = "riscv64gc")] {
         mod powerpc;
-        pub use self::riscv64gc::*;
+        pub use self::riscv64::*;
     } else {
         // Unknown target_arch
     }
